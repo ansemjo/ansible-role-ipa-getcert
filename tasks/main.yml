@@ -1,0 +1,30 @@
+---
+
+- name: RZ | IPA | getcert - Request certificate for host
+  command: ipa-getcert request -r -w \
+    -I "{{ ansible_fqdn }}" \
+    -k "{{ rz_ipa_getcert_private }}/{{ ansible_fqdn }}.key" \
+    -f "{{ rz_ipa_getcert_certs }}/{{ ansible_fqdn }}.crt"
+  
+  args:
+    creates: "{{ rz_ipa_getcert_certs }}/{{ ansible_fqdn }}.crt"
+  
+  register: certificate_request
+
+
+- name: RZ | IPA | getcert - Symlink certificates to localhost name
+  file:
+    state: link
+    force: true
+    src: "{{ item.src }}"
+    path: "{{ item.path }}"
+
+  with_items:
+
+    - src: "{{ rz_ipa_getcert_private }}/{{ ansible_fqdn }}.key"
+      path: "{{ rz_ipa_getcert_private }}/localhost.key"
+    
+    - src: "{{ rz_ipa_getcert_certs }}/{{ ansible_fqdn }}.crt"
+      path: "{{ rz_ipa_getcert_certs }}/localhost.crt"
+
+  when: certificate_request | succeeded

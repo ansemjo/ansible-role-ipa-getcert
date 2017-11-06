@@ -1,0 +1,3 @@
+---
+rz_ipa_getcert_private:   /etc/pki/tls/private
+rz_ipa_getcert_certs:     /etc/pki/tls/certs
