@@ -2,17 +2,20 @@
 
 - name: request certificate for host
   command: ipa-getcert request -r -w \
-    -I "{{ ansible_fqdn }}" \
-    -k "{{ rz_ipa_getcert_private }}/{{ ansible_fqdn }}.key" \
-    -f "{{ rz_ipa_getcert_certs }}/{{ ansible_fqdn }}.crt"
+    -I "{{ item }}" -N "CN={{ item }}" -D "{{ item }}" \
+    -k "{{ ansemjo_ipa_getcert_storage_key }}/{{ item }}.key" \
+    -f "{{ ansemjo_ipa_getcert_storage_crt }}/{{ item }}.crt" \
+    -K "host/{{ item }}"
   
   args:
-    creates: "{{ rz_ipa_getcert_certs }}/{{ ansible_fqdn }}.crt"
+    creates: "{{ ansemjo_ipa_getcert_storage_crt }}/{{ item }}.crt"
+
+  with_items: "{{ ansemjo_ipa_getcert_request_hostnames }}"
   
   register: certificate_request
 
 
-- name: symlink certificates as 'localhost'
+- name: symlink fqdn certificate as 'localhost'
   file:
     state: link
     force: true
@@ -21,10 +24,10 @@
 
   with_items:
 
-    - src: "{{ rz_ipa_getcert_private }}/{{ ansible_fqdn }}.key"
-      path: "{{ rz_ipa_getcert_private }}/localhost.key"
+    - src: "{{ ansemjo_ipa_getcert_storage_key }}/{{ ansible_fqdn }}.key"
+      path: "{{ ansemjo_ipa_getcert_storage_key }}/localhost.key"
     
-    - src: "{{ rz_ipa_getcert_certs }}/{{ ansible_fqdn }}.crt"
-      path: "{{ rz_ipa_getcert_certs }}/localhost.crt"
+    - src: "{{ ansemjo_ipa_getcert_storage_crt }}/{{ ansible_fqdn }}.crt"
+      path: "{{ ansemjo_ipa_getcert_storage_crt }}/localhost.crt"
 
-  when: certificate_request is succeeded
+  when: (certificate_request is succeeded) and (ansemjo_ipa_getcert_symlink_fqdn)

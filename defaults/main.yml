@@ -1,3 +1,11 @@
 ---
-rz_ipa_getcert_private:   /etc/pki/tls/private
-rz_ipa_getcert_certs:     /etc/pki/tls/certs
+# where to store keys and certificates
+ansemjo_ipa_getcert_storage_key: /etc/pki/tls/private
+ansemjo_ipa_getcert_storage_crt: /etc/pki/tls/certs
+
+# list of hostnames to be requested in seperate certificates
+ansemjo_ipa_getcert_request_hostnames:
+  - "{{ ansible_fqdn }}"
+
+# symlink the certificates for ansible_fqdn to localhost.{crt,key}?
+ansemjo_ipa_getcert_symlink_fqdn: true
