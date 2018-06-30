@@ -24,10 +24,46 @@
 
   with_items:
 
-    - src: "{{ ansemjo_ipa_getcert_storage_key }}/{{ ansible_fqdn }}.key"
+    - src: "{{ ansemjo_ipa_getcert_storage_key }}/{{ ansemjo_ipa_getcert_request_hostnames | first }}.key"
       path: "{{ ansemjo_ipa_getcert_storage_key }}/localhost.key"
     
-    - src: "{{ ansemjo_ipa_getcert_storage_crt }}/{{ ansible_fqdn }}.crt"
+    - src: "{{ ansemjo_ipa_getcert_storage_crt }}/{{ ansemjo_ipa_getcert_request_hostnames | first }}.crt"
       path: "{{ ansemjo_ipa_getcert_storage_crt }}/localhost.crt"
 
   when: (certificate_request is succeeded) and (ansemjo_ipa_getcert_symlink_fqdn)
+
+- name: chain directory exists
+  file:
+    state: directory
+    path: "{{ ansemjo_ipa_getcert_storage_chain }}"
+    owner: root
+    group: "{{ ansemjo_ipa_getcert_pem_chain_group }}"
+    mode: 0750
+  when: ansemjo_ipa_getcert_pem_chain
+
+- name: chain parts symlinked (keys)
+  file:
+    state: link
+    src: "{{ ansemjo_ipa_getcert_storage_key }}/{{ item }}.key"
+    path: "{{ ansemjo_ipa_getcert_storage_chain }}/{{ item }}.key"
+  with_items: "{{ ansemjo_ipa_getcert_request_hostnames }}"
+  when: ansemjo_ipa_getcert_pem_chain
+
+- name: chain parts symlinked (certs)
+  file:
+    state: link
+    src: "{{ ansemjo_ipa_getcert_storage_crt }}/{{ item }}.crt"
+    path: "{{ ansemjo_ipa_getcert_storage_chain }}/{{ item }}.crt"
+  with_items: "{{ ansemjo_ipa_getcert_request_hostnames }}"
+  when: ansemjo_ipa_getcert_pem_chain
+
+- name: pem chain assembled
+  assemble:
+    src: "{{ ansemjo_ipa_getcert_storage_chain }}"
+    dest: "{{ ansemjo_ipa_getcert_storage_chain }}/{{ item }}.pem"
+    regexp: "^{{ item }}.(crt|key)$"
+    owner: root
+    group: "{{ ansemjo_ipa_getcert_pem_chain_group }}"
+    mode: 0640
+  with_items: "{{ ansemjo_ipa_getcert_request_hostnames }}"
+  when: ansemjo_ipa_getcert_pem_chain

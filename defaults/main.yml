@@ -2,6 +2,7 @@
 # where to store keys and certificates
 ansemjo_ipa_getcert_storage_key: /etc/pki/tls/private
 ansemjo_ipa_getcert_storage_crt: /etc/pki/tls/certs
+ansemjo_ipa_getcert_storage_chain: /etc/pki/tls/chain
 
 # list of hostnames to be requested in seperate certificates
 ansemjo_ipa_getcert_request_hostnames:
@@ -9,3 +10,7 @@ ansemjo_ipa_getcert_request_hostnames:
 
 # symlink the certificates for ansible_fqdn to localhost.{crt,key}?
 ansemjo_ipa_getcert_symlink_fqdn: true
+
+# assemble crt and key in a single file in ..storage_key/chain/*.pem?
+ansemjo_ipa_getcert_pem_chain: false
+ansemjo_ipa_getcert_pem_chain_group: root
