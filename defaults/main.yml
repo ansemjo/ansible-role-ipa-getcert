@@ -11,6 +11,6 @@ ansemjo_ipa_getcert_request_hostnames:
 # symlink the certificates for ansible_fqdn to localhost.{crt,key}?
 ansemjo_ipa_getcert_symlink_fqdn: true
 
-# assemble crt and key in a single file in ..storage_key/chain/*.pem?
+# assemble crt and key in a single file in ..storage_chain/*.pem?
 ansemjo_ipa_getcert_pem_chain: false
 ansemjo_ipa_getcert_pem_chain_group: root

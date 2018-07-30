@@ -1,38 +1,62 @@
-Role Name
-=========
+# ipa-getcert
 
-A brief description of the role goes here.
+Receive a host certificate through `ipa-getcert` on a FreeIPA enrolled host.
 
-Requirements
-------------
+## Usage
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+By default this role will attempt to request a certificate for the host and saves key / certificate
+at `/etc/pki/tls/private/{{ ansible_fqdn }}.key` / `/etc/pki/tls/certs/{{ ansible_fqdn }}.crt`.
 
-Role Variables
---------------
+```yaml
+#!/usr/bin/env ansible-playbook
+---
+- hosts: app.mydomain.com
+  gather_facts: true
+  become: true
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+roles:
 
-Dependencies
-------------
+    - role: ansemjo.ipa-getcert
+      tags: [ getcert ]
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+    - ...
+```
 
-Example Playbook
-----------------
+### requested hostnames
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
+If you want to change the list of certificates to request use:
 
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+```yaml
+# list of hostnames to be requested in seperate certificates
+ansemjo_ipa_getcert_request_hostnames:
+  - "{{ ansible_fqdn }}"
+  - "another.example.com"
+```
 
-License
--------
+Right now each requested certificate needs to belong to a seperate host entry in FreeIPA. Support
+for principal aliases may be added later.
 
-BSD
+### localhost symlink
 
-Author Information
-------------------
+The role creates a symlink for the localhost certificates at `/etc/pki/tls/private/localhost.key` /
+`/etc/pki/tls/certs/localhost.crt`. The first entry in `_request_hostnames` will be used. If you
+want to disable this, set the following to `false`:
 
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).
+```yaml
+# symlink the certificates for ansible_fqdn to localhost.{crt,key}?
+ansemjo_ipa_getcert_symlink_fqdn: true
+```
+
+### chain assembly
+
+For some applications it may be useful to have both certificate and key concatenated in a single PEM
+file. In this case use:
+
+```yaml
+# assemble crt and key in a single file in ..storage_chain/*.pem?
+ansemjo_ipa_getcert_pem_chain: true
+ansemjo_ipa_getcert_pem_chain_group: myapp
+```
+
+This will assemble said chain in `/etc/pki/tls/chain/{{ fqdn }}.pem` with mode `0640` and `myapp`
+group.
