@@ -16,7 +16,7 @@ at `/etc/pki/tls/private/{{ ansible_fqdn }}.key` / `/etc/pki/tls/certs/{{ ansibl
 
 roles:
 
-    - role: ansemjo.ipa-getcert
+    - role: ansemjo.ipa_getcert
       tags: [ getcert ]
 
     - ...

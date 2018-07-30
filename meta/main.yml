@@ -3,5 +3,5 @@ galaxy_info:
   description: receive a tls certificate on a freeipa enrolled host
   license: MIT
   galaxy_tags: []
-  role_name: ipa-getcert
+  role_name: ipa_getcert
 dependencies: []
